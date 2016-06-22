@@ -2,6 +2,7 @@
 import sys
 import virtinst.util
 import subprocess
+from libvirt-ks-vm.conf import *
 
 NAME = raw_input("VM Name (FQDN): ")
 MAC = virtinst.util.randomMAC()
@@ -11,6 +12,8 @@ FRESHDISK = query_yes_no(Create a fresh disk?)
 
 if FRESHDISK is True:
   DISKSIZE = disk_size_selector()
+  produce_ks_cfg()
+  KSFILE="ks-" + MAC + ".cfg"
   create_vm(1)
   
 if FRESHDISK is False:
@@ -26,15 +29,14 @@ def create_vm(option):
   disk_vm = " --disk /home/kvm/disks/" + DISKNAME
   network_vm = " bridge= br1,mac=" + MAC
   nographics = " --nographics"
-  extra-args = " --extra-args="ks=http://cobbler.lilac.red/centos-7-install/ks.cfg ksdevice=eth0 console=tty0 console=ttyS0,115200"
+  extra-args = " --extra-args='ks=http://cobbler.lilac.red/centos-7-install/" + KSFILE + " ksdevice=eth0 console=tty0 console=ttyS0,115200'"
   debug = " --debug"
   autostart = " --autostart"
-  import = " --import"
+  disk_import = " --import"
   if option == 1:
     subprocess.Popen("virt-install" + name_vm + cpu_vm + location_vm + os_vm + disk_vm + network_vm + nographics + extra-args + debug + autostart)
   elif option == 2:
-    subprocess.Popen("virt-install" + name_vm " cpu_vm + import + os_vm + disk_vm + network_vm + nographics + debug + autostart)
-
+    subprocess.Popen("virt-install" + name_vm + cpu_vm + disk_import + os_vm + disk_vm + network_vm + nographics + debug + autostart)
 
 def disk_image_selector():
   question = "Please select a disk from the list below"
@@ -68,3 +70,20 @@ def query_yes_no(question):
       return valid[choice]
     else:
       sys.stdout.write("Please respond with 'yes' or 'no')
+
+def produce_ks_cfg():
+  file = "ks-" + MAC + ".cfg"
+  with open "/home/kvm/kickstart/" + file, 'a'):
+    file.write(
+  transfer_file("home/kvm/kickstart/" + file):
+    
+def transfer_file(file):
+  subprocess.call("transfer.sh")
+  
+
+
+
+
+
+
+
