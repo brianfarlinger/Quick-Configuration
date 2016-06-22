@@ -3,6 +3,7 @@ import sys
 import virtinst.util
 import subprocess
 from libvirt-ks-vm.conf import *
+from ks-configurator.py import *
 
 NAME = raw_input("VM Name (FQDN): ")
 MAC = virtinst.util.randomMAC()
@@ -73,12 +74,14 @@ def query_yes_no(question):
 
 def produce_ks_cfg():
   file = "ks-" + MAC + ".cfg"
-  with open "/home/kvm/kickstart/" + file, 'a'):
-    file.write(
-  transfer_file("home/kvm/kickstart/" + file):
-    
+  filepath = "/home/kvm/kickstart" + file
+  with open(filepath, 'a'):
+    file.write(ks.configurator())
+    file.close()
+  transfer_file(filepath)
+
 def transfer_file(file):
-  subprocess.call("transfer.sh")
+  subprocess.Popen("runuser -l  rsync -c 'rsync " + file " cobbler.lilac.red:/var/www/html/centos-7-install/'")
   
 
 
