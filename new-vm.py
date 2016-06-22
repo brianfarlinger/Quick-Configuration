@@ -19,14 +19,14 @@ if FRESHDISK is False:
 
 def create_vm(option):
   name_vm = " -n " + NAME
-  cpu_vm = " -r " + RAM + "--cpu host"
+  cpu_vm = " -r " + RAM + "--cpu host --vcpus=" + CPU
   location_vm = " --location http://cobbler.lilac.red/centos-7-install/mount/"
   os_vm = " --os-variant=rhel7"
   disk_pool_vm = " --disk pool=disks,size=" + DISKSIZE
   disk_vm = " --disk /home/kvm/disks/" + DISKNAME
   network_vm = " bridge= br1,mac=" + MAC
   nographics = " --nographics"
-  extra-args = " --extra-args "ks=http://cobbler.lilac.red/centos-7-install/ks.cfg ksdevice=eth0 console=tty0 console=ttyS0,115200"
+  extra-args = " --extra-args="ks=http://cobbler.lilac.red/centos-7-install/ks.cfg ksdevice=eth0 console=tty0 console=ttyS0,115200"
   debug = " --debug"
   autostart = " --autostart"
   import = " --import"
