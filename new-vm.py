@@ -56,7 +56,10 @@ def disk_size_selector():
   while True:
     sys.stdout.write(question)
     choice = raw_input()
-    if choice.isdigit() == True:
+    if choice.isdigit():
+      choice = 10
+      return choice
+    elif choice.isdigit():
       return choice
     else: 
       sys.stdout.write("Please respond with a valid number. ie) 8")
