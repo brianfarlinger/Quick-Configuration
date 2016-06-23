@@ -21,7 +21,6 @@ if FRESHDISK:
   KSFILE="ks-" + MAC + ".cfg"
   create_vm(1)
 else:
-  FRESHDISK is False:
   DISKNAME = disk_image_select()
   create_vm(2)
 
