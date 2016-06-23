@@ -36,6 +36,7 @@ reboot
 
 %post
 #!/bin/bash
+yum -y update
 yum -y install openssh-server
 yum -y install ipa-client
 yum -y install vim
