@@ -3,58 +3,68 @@ from new-vm.py import *
 
 def ks_configurator():
   KS = "
-%pre
-
-%end
-
 install
 text
 cdrom
 lang en_US.UTF-8
 keyboard us
-network --onboot yes --device eth0 --bootproto DHCP --hostname " + NAME + "
-rootpw --iscrypted 6AE6E1195FA12CBF4BE56960A2AE1852F53072B0DF6AED66CBE0F6B1EB47BA1B5073CC206A8BC9E00C05526A3FD133BD26DCE5249FDA6E7085F1030531C0F75D
+network --onboot yes --device eth0 --bootproto dhcp --hostname " + NAME + "
+rootpw --iscrypted $1$F2Bb8VI8$yONq5fgHxCciz6RIpGb9R1
 firewall --disabled
-authconfig --enableshadow --passalgo=sha512
+authconfig --enableshadow --enablemd5
 selinux --disabled
-services --enabled=sshd
 timezone --utc America/Vancouver
 zerombr
-clearpart --all
-part /boot --fstype=xfs --size=512
-part pv.01 --grow --size=1
-volgroup vgroot01 pv.01
-logvol swap --name=lv_swap --vgname=vgroot01 --size=1024
-logvol / --fstype=xfs --name=lv_root --vgname=vgroot01 --grow --size=1
-bootloader --location=mbr --append="crashkernel=auto rhgb quiet" console=ttyS0,115200"
-user --name=localadmin --iscrypted --groups=wheel --password=6AE6E1195FA12CBF4BE56960A2AE1852F53072B0DF6AED66CBE0F6B1EB47BA1B5073CC206A8BC9E00C05526A3FD133BD26DCE5249FDA6E7085F1030531C0F75D
+clearpart --all --initlabel
+part /boot --fstype=xfs --size=512 
+part pv.01 --size=1 --grow
+volgroup vg00 pv.01
+logvol swap --fstype=swap --name=swap --vgname=vg00 --recommended
+logvol / --fstype=xfs --name=lv_root --vgname=vg00 --size=1 --grow
+bootloader --location=mbr --append="crashkernel=auto rhgb quiet" "console=ttyS0,115200"
+user --name=localadmin --iscrypted --groups=wheel --password=$1$F2Bb8VI8$yONq5fgHxCciz6RIpGb9R1
 reboot
-%packages --nobase --ignoremissing
+
+%packages 
 @core
-openssh-server
-ipa-client
-vim
-wget
-nfs-utils
-python
-git
-curl
-sudo
-iptables
-rsync
+-NetworkManager*
 %end
 
 %post --nochroot
-#!/bin/bash
-cp /etc/resolv.conf /mnt/sysimage/etc/resolv.conf
 %end
+
 
 %post
 #!/bin/bash
-ipa-client-install --server=freeipa.lilac.red --domain=lilac.red --mkhomedir
+yum -y install openssh-server
+yum -y install ipa-client
+yum -y install vim
+yum -y install wget
+yum -y install nfs-utils
+yum -y install git
+yum -y install curl
+yum -y install iptables
+yum -y install rsync
+systemctl enable sshd
+systemctl enable nfs-server
+systemctl enable rpcbind
+systemctl enable nfs-idmap
+systemctl enable nfs-lock
+echo "192.168.69.10:/mnt/Primary      /mnt/share      nfs     auto    0 0" >> /etc/fstab
+echo $hostname > /etc/hostname
+
+hostname=$(curl http://cobbler.lilac.red/centos-7-install/hostname.cfg)
+echo "$hostname" > /etc/hostname
+
+d=$(echo "DHCP_HOSTNAME=")
+h=$(cat /etc/hostname)
+echo $d$h >> /etc/sysconfig/network-scripts/ifcfg-eth0
+
+ipa-client-install --server=freeipa.lilac.red --domain=lilac.red --mkhomedir --hostname=$h
+ostname --principal=join --password=MQIZE10ruI85tVkWaJI5 --unattended
 gpasswd -a brian wheel
+
 reboot
 %end
-
 "
   return KS
