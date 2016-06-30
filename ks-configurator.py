@@ -1,6 +1,9 @@
 #!/bin/python
 from new-vm.py import *
+from libvirt-ks-kvm.conf import *
 
+#Generates a KS file. 
+#This KS file is just an example and will not work with your environment. You will need to manually edit this config file. 
 def ks_configurator():
   KS = "
 install
@@ -9,9 +12,9 @@ cdrom
 lang en_US.UTF-8
 keyboard us
 network --onboot yes --device eth0 --bootproto dhcp --hostname " + NAME + "
-rootpw --iscrypted $1$F2Bb8VI8$yONq5fgHxCciz6RIpGb9R1
+rootpw --iscrypted " + ROOTPW + "
 firewall --disabled
-authconfig --enableshadow --enablemd5
+authconfig --enableshadow --sha-512
 selinux --disabled
 timezone --utc America/Vancouver
 zerombr
@@ -22,7 +25,7 @@ volgroup vg00 pv.01
 logvol swap --fstype=swap --name=swap --vgname=vg00 --recommended
 logvol / --fstype=xfs --name=lv_root --vgname=vg00 --size=1 --grow
 bootloader --location=mbr --append="crashkernel=auto rhgb quiet" "console=ttyS0,115200"
-user --name=localadmin --iscrypted --groups=wheel --password=$1$F2Bb8VI8$yONq5fgHxCciz6RIpGb9R1
+user --name=" + LOCALADMIN + " --iscrypted --groups=wheel --password=" + LOCALADMINPW + "
 reboot
 
 %packages 
@@ -51,6 +54,7 @@ systemctl enable nfs-server
 systemctl enable rpcbind
 systemctl enable nfs-idmap
 systemctl enable nfs-lock
+
 echo "192.168.69.10:/mnt/Primary      /mnt/share      nfs     auto    0 0" >> /etc/fstab
 echo $hostname > /etc/hostname
 
@@ -61,8 +65,7 @@ d=$(echo "DHCP_HOSTNAME=")
 h=$(cat /etc/hostname)
 echo $d$h >> /etc/sysconfig/network-scripts/ifcfg-eth0
 
-ipa-client-install --server=freeipa.lilac.red --domain=lilac.red --mkhomedir --hostname=$h
-ostname --principal=join --password=MQIZE10ruI85tVkWaJI5 --unattended
+ipa-client-install --server=freeipa.lilac.red --domain=lilac.red --mkhomedir --hostname=$hostname --principal=join --password=MQIZE10ruI85tVkWaJI5 --unattended
 gpasswd -a brian wheel
 
 reboot
