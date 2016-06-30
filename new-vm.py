@@ -9,7 +9,7 @@ NAME = raw_input("VM Name (Use FQDN): ")
 MAC = virtinst.util.randomMAC()
 RAM = raw_input("RAM [1024]: ")
 if RAM == "":
-  RAM = 2014
+  RAM = 1024
 CPU = raw_input("Number of vCPUs [2]: ")
 if CPU == "":
   CPU = 2
@@ -87,7 +87,7 @@ def produce_ks_cfg():
   transfer_file(filepath)
 
 def transfer_file(file):
-  subprocess.Popen("runuser -l  rsync -c 'rsync " + file " cobbler.lilac.red:/var/www/html/centos-7-install/'")
+  subprocess.Popen("runuser -l  rsync -c 'rsync " + file + " cobbler.lilac.red:/var/www/html/centos-7-install/'")
   
 
 
